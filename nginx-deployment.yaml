@@ -1,0 +1,39 @@
+version: 1
+
+# Deployment to compile node project and install on a jails, copy to jail and run the webserver
+metadata:
+  name: 'yoonka-webserver'
+
+project:
+  name: 'yoonka-webserver'
+  namespace: 'yoonka-webserver'
+
+  working_dir: temp/yoonka-webserver
+
+  git:
+    source: "https://github.com/nguthiru/receipt_generator.git"
+    branch: "master"
+
+  workflow: 
+    - test:
+        runner: "node"
+        command: "npm run test"
+
+    - build:
+        runner: "node"
+        command: "npm run build"
+
+  jails:
+      dependencies:
+        pkg:
+          - name: 'node'
+            version: 'latest'
+          - name: 'npm'
+            version: 'latest'
+          - name: 'nginx'
+            version: 'latest'
+      commands:
+        - "npm install"
+        - "npm run build"
+        - "cp -r ./dist /usr/local/www/nginx"
+        - "nginx -s reload"
