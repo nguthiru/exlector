@@ -16,12 +16,12 @@ project:
 
   workflow: 
     - test:
-        runner: "node"
-        command: "npm run test"
+        runner: "npm"
+        command: "run test"
 
     - build:
-        runner: "node"
-        command: "npm run build"
+        runner: "npm"
+        command: "run build"
 
   jails:
       dependencies:

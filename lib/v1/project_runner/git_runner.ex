@@ -14,6 +14,9 @@ defmodule V1.ProjectRunner.GitRunner do
   def init(%{working_dir: working_dir} = state) do
     case directory_exists?(working_dir) do
       true ->
+        # Delete the directory if it exists
+        File.rm_rf!(working_dir)
+        File.mkdir_p!(working_dir)
         {:ok, state}
 
       false ->
@@ -56,29 +59,9 @@ defmodule V1.ProjectRunner.GitRunner do
     end
   end
 
-  defp get_git_repository_name(source) do
-    source
-    |> String.split("/")
-    |> List.last()
-    |> String.replace(".git", "")
-  end
-
   defp perform_git_clone(source, working_dir) do
     Logger.info("Git Runner: Cloning repository: #{source} in directory: #{working_dir}")
-    {output, exit_code} = System.cmd("git", ["clone", source], cd: working_dir)
-
-    case exit_code do
-      0 ->
-        {:ok, output}
-
-      _ ->
-        {:error, output}
-    end
-  end
-
-  defp perform_git_pull(directory) do
-    Logger.info("Git Runner: Pulling repository in directory: #{directory}")
-    {output, exit_code} = System.cmd("git", ["pull"], cd: directory)
+    {output, exit_code} = System.cmd("git", ["clone", source, "."], cd: working_dir)
 
     case exit_code do
       0 ->
@@ -90,18 +73,8 @@ defmodule V1.ProjectRunner.GitRunner do
   end
 
   defp fetch_git_repository(source, working_dir) do
-    #check if the repository already exists in the working directory make a pull rather than clone
-    repository_name = get_git_repository_name(source)
-    repository_path = Path.join(working_dir, repository_name)
-
-    case directory_exists?(repository_path) do
-      true ->
-        perform_git_pull(repository_path)
-
-      false ->
-        perform_git_clone(source, working_dir)
-    end
-
+    # check if the repository already exists in the working directory make a pull rather than clone
+    perform_git_clone(source, working_dir)
   end
 
   defp perform_git_checkout(branch, directory) do
@@ -124,7 +97,7 @@ defmodule V1.ProjectRunner.GitRunner do
           {:ok, _} ->
             case perform_git_checkout(
                    branch,
-                   Path.join(working_dir, get_git_repository_name(source))
+                   working_dir
                  ) do
               {:ok, _} ->
                 Logger.info("Git Runner: Successfully cloned and checked out the repository")

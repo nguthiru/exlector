@@ -2,14 +2,12 @@ defmodule V1.ProjectRunner.WorkflowRunner do
   require Logger
   use GenServer
 
-  @fields ["test", "build"]
-
   def start_link(
         %{
           working_dir: _working_directory
-        } = _args
+        } = args
       ) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def init(state) do
@@ -20,33 +18,32 @@ defmodule V1.ProjectRunner.WorkflowRunner do
     GenServer.stop(__MODULE__)
   end
 
-  def run([] = workflows) do
-    GenServer.call(__MODULE__, {:execute, data})
+  def run(workflows) do
+    GenServer.call(__MODULE__, {:execute, workflows})
   end
 
-  def execute_workflow(%{key => %{"command"=> command} }) do
-    case Enum.member?(key, @fields) do
-      true ->
-        Logger.debug("Executing workflow: #{command}")
-        System.cmd("sh", ["-c", command])
+  def execute_workflow(%{}=workflow, working_directory) do
 
-      false ->
-        Logger.error("Invalid workflow for: #{key}")
-        {:error, "Invalid workflow key"}
-    end
-  end
-
-  def handle_call({:execute, workflows}, _from, state) do
-    for workflow <- workflows do
-      case execute_workflow(workflow) do
-        {:ok, _} ->
-          Logger.debug("Workflow execution successful")
-
-        {:error, error} ->
-          Logger.error("Error executing workflow: #{inspect(error)}")
+    for {name, %{"command" => command, "runner" => runner}} <- workflow do
+      Logger.debug("Running #{name} with command: #{command} using runner: #{runner}")
+      {output, exit_code} = System.cmd(runner, ["-c", command], cd: working_directory)
+      case exit_code do
+        0 ->
+          {:ok, output}
+        _ ->
+          {:error, output}
       end
     end
 
+  end
+
+  def handle_call({:execute, workflows}, _from, %{working_dir: working_directory}=state) do
+    # Execute the workflows example : [
+    #   %{"test" => %{"command" => "npm run test", "runner" => "node"}},
+    #   %{"build" => %{"command" => "npm run build", "runner" => "node"}}
+    # ]
+
+    Enum.each(workflows, fn workflow -> execute_workflow(workflow, working_directory) end)
     {:reply, {:ok, "Workflow execution successful"}, state}
   end
 end
