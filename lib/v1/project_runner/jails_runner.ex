@@ -19,7 +19,7 @@ defmodule V1.ProjectRunner.JailsRunner do
   end
 
   def run(jails) do
-    GenServer.call(__MODULE__, {:execute, jails})
+    GenServer.call(__MODULE__, {:execute, jails},600000)
   end
 
   defp create_zfs_dataset(name) do
