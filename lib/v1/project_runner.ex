@@ -45,9 +45,10 @@ defmodule V1.ProjectRunner do
           {:ok, _pid} ->
             WorkflowRunner.run(data["workflow"])
             WorkflowRunner.stop()
-
+            {:ok, "Workflow execution successful"}
           {:error, error} ->
             Logger.error("Error executing workflow runner: #{inspect(error)}")
+            {:error, error}
         end
 
       false ->
@@ -74,8 +75,13 @@ defmodule V1.ProjectRunner do
         case execute_git(data) do
           {:ok, _} ->
             Logger.debug("Git execution successful")
-            execute_workflow(data)
-            execute_jails(data)
+            case execute_workflow(data) do
+              {:ok, _} ->
+                Logger.debug("Workflow execution successful")
+                execute_jails(data)
+              {:error, error} ->
+                Logger.error("Error executing workflow runner: #{inspect(error)}")
+            end
 
           {:error, error} ->
             Logger.error("Error executing git runner: #{inspect(error)}")

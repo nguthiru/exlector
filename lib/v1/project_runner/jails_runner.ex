@@ -33,7 +33,7 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
 
     {output, exit_code} =
-      System.cmd("zfs", ["create", "-o", "mountpoint-/jails/#{name}", "zroot/jails/#{name}"])
+      System.cmd("zfs", ["create", "-o", "mountpoint=/jails/#{name}", "zroot/jails/#{name}"])
 
     case exit_code do
       0 ->
@@ -45,7 +45,10 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp create_jails_config(name, %{ip: %{inherit: inherit?, interface: interface} = ip_config}) do
+  defp create_jails_config(name, %{
+         "interface" => interface,
+         "ip" => %{"inherit" => inherit?} = ip_config
+       }) do
     template = """
     #{name} {
 

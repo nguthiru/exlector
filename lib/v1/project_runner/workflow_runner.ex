@@ -32,6 +32,7 @@ defmodule V1.ProjectRunner.WorkflowRunner do
           {:ok, output}
         _ ->
           {:error, output}
+          raise "Error running command: #{command} with runner: #{runner}"
       end
     end
 
