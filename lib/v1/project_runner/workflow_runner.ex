@@ -38,11 +38,6 @@ defmodule V1.ProjectRunner.WorkflowRunner do
   end
 
   def handle_call({:execute, workflows}, _from, %{working_dir: working_directory}=state) do
-    # Execute the workflows example : [
-    #   %{"test" => %{"command" => "npm run test", "runner" => "node"}},
-    #   %{"build" => %{"command" => "npm run build", "runner" => "node"}}
-    # ]
-
     Enum.each(workflows, fn workflow -> execute_workflow(workflow, working_directory) end)
     {:reply, {:ok, "Workflow execution successful"}, state}
   end
