@@ -19,7 +19,7 @@ defmodule V1.ProjectRunner.WorkflowRunner do
   end
 
   def run(workflows) do
-    GenServer.call(__MODULE__, {:execute, workflows})
+    GenServer.call(__MODULE__, {:execute, workflows},600000)
   end
 
   def execute_workflow(%{} = workflow, working_directory) do
