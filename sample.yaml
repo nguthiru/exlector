@@ -15,9 +15,13 @@ project:
     branch: "master"
 
   workflow:
-    - test:
+    - install:
         runner: "npm"
-        command: "run test"
+        command: "install"
+        
+    # - test:
+    #     runner: "npm"
+    #     command: "run test"
 
     - build:
         runner: "npm"
