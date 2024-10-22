@@ -35,7 +35,7 @@ defmodule V1.ProjectRunner.GitRunner do
   end
 
   def run(%{} = data) do
-    GenServer.call(__MODULE__, {:run, data})
+    GenServer.call(__MODULE__, {:run, data}, 15000)
   end
 
   def handle_call({:run, data}, _from, state) do
