@@ -69,12 +69,6 @@ defmodule V1.ProjectRunner.JailsRunner do
        }) do
     template = """
     #{name} {
-
-    exec.start = "/bin/sh /etc/rc";
-    exec.stop = "/bin/sh /etc/rc.shutdown";
-    exec.clean;
-    mount.devfs;
-
     host.hostname = #{name}.local;
     path = /jails/#{name};
     allow.raw_sockets;
@@ -82,22 +76,20 @@ defmodule V1.ProjectRunner.JailsRunner do
 
     interface = #{interface};
 
-    }
-
     """
 
     add_ip_config =
       case inherit? do
         true ->
           # Add a ip4 inherit = inherit to the template
-          template = template <> "ip4 = inherit;\n"
+          template = template <> "ip4 = inherit;\n}"
           {:ok, template}
 
         false ->
           case Map.has_key?(ip_config, "address") do
             true ->
               # Add a ip4 address = address to the template
-              template = template <> "ip4.addr = #{ip_config["address"]};\n"
+              template = template <> "ip4.addr = #{ip_config["address"]};\n}"
               {:ok, template}
 
             false ->
@@ -164,7 +156,7 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp copy_files(name, [] = directives) do
+  defp copy_files(name, directives) do
     Enum.each(directives, fn directive -> copy_file(name, directive) end)
   end
 
