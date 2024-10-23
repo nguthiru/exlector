@@ -142,7 +142,7 @@ defmodule V1.ProjectRunner.JailsRunner do
           "{working_dir}",
           working_dir
         ),
-        "jails/#{name}/#{to} "
+        "/jails/#{name}#{to} "
       ])
 
     case exit_code do
