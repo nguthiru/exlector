@@ -135,6 +135,7 @@ defmodule V1.ProjectRunner.JailsRunner do
   end
 
   defp copy_file(name, working_dir, %{"from" => from, "to" => to}) do
+    Logger.debug("Copying file from #{from} to /jails/#{name}#{to}")
     {output, exit_code} =
       System.cmd("cp", [
         "-r",
