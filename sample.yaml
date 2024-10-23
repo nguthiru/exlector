@@ -42,8 +42,8 @@ project:
         - name: "nginx"
           version: "latest"
     copy:
-      - from: "{working_dir}/dist"
-        to: "/usr/local/www/nginx"
+      - from: "dist/"
+        to: "/usr/local/www/nginx/"
 
       - from: "./nginx.conf"
         to: "/usr/local/etc/nginx/nginx.conf"

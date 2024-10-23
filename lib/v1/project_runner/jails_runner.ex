@@ -137,16 +137,7 @@ defmodule V1.ProjectRunner.JailsRunner do
   defp copy_file(name, working_dir, %{"from" => from, "to" => to}) do
     Logger.debug("Copying file from #{from} to /jails/#{name}#{to}")
     {output, exit_code} =
-      System.cmd("cp", [
-        "-r",
-        String.replace(
-          from,
-          "{working_dir}",
-          working_dir
-        ),
-        "/jails/#{name}#{to} "
-      ],into: IO.stream(:stdio, :line))
-    IO.inspect(output)
+     System.cmd("cp", [from, "/jails/#{name}#{to}"], cd: working_dir)
     case exit_code do
       0 ->
         Logger.info("File copied successfully")
