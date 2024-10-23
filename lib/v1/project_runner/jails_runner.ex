@@ -36,19 +36,6 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp create_mount_directory(name) do
-    {output, exit_code} = System.cmd("mkdir", ["-p","/jails/#{name}"])
-
-    case exit_code do
-      0 ->
-        Logger.info("Mount directory created successfully")
-
-      _ ->
-        Logger.error("Error creating mount directory: #{output}")
-        {:error, "Error creating mount directory: #{output}"}
-    end
-  end
-
   defp mount_zfs_dataset(name) do
     {output, exit_code} = System.cmd("zfs", ["set", "mountpoint=/jails/#{name}", "zroot/jails/#{name}"])
 
@@ -169,7 +156,6 @@ defmodule V1.ProjectRunner.JailsRunner do
       true ->
         name = jails["name"]
         clone_base_dataset(name)
-        create_mount_directory(name)
         mount_zfs_dataset(name)
         create_jails_config(name, jails["config"])
         start_jails(name)
