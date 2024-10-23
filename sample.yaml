@@ -8,8 +8,6 @@ project:
   name: "receipt-webserver"
   namespace: "receipt-webserver"
 
-  working_dir: temp/receipt-webserver
-
   git:
     source: "https://github.com/nguthiru/receipt_generator.git"
     branch: "master"
@@ -44,8 +42,11 @@ project:
         - name: "nginx"
           version: "latest"
     copy:
-      - from: "./dist"
+      - from: "{working_dir}/dist"
         to: "/usr/local/www/nginx"
+
+
     commands:
-      - "cp -r ./dist /usr/local/www/nginx"
+      - "service nginx enable"
+      - "service nginx start"
       - "nginx -s reload"

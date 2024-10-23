@@ -116,7 +116,7 @@ defmodule V1.ProjectRunner.JailsRunner do
 
   defp install_dependency(name, %{"name" => dependecy_name}) do
     # Command is jexec {name} pkg install {name} -y
-    {output, exit_code} = System.cmd("jexec", [name, "pkg", "install", "-y", dependecy_name,])
+    {output, exit_code} = System.cmd("jexec", [name, "pkg", "install", "-y", dependecy_name])
 
     case exit_code do
       0 ->
@@ -134,8 +134,16 @@ defmodule V1.ProjectRunner.JailsRunner do
     Enum.each(dependencies, fn dependency -> install_dependency(name, dependency) end)
   end
 
-  defp copy_file(name, %{"from" => from, "to" => to}) do
-    {output, exit_code} = System.cmd("cp", [from, "jails/#{name}/#{to}"])
+  defp copy_file(name, working_dir, %{"from" => from, "to" => to}) do
+    {output, exit_code} =
+      System.cmd("cp", [
+        String.replace(
+          from,
+          "{working_dir}",
+          working_dir
+        ),
+        "jails/#{name}/#{to} "
+      ])
 
     case exit_code do
       0 ->
@@ -148,15 +156,15 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp copy_files(name, directives) do
-    Enum.each(directives, fn directive -> copy_file(name, directive) end)
+  defp copy_files(name, working_dir, directives) do
+    Enum.each(directives, fn directive -> copy_file(name, working_dir, directive) end)
   end
 
   defp execute_command(name, command) do
     System.cmd("jexec", [name, command])
   end
 
-  def handle_call({:execute, jails}, _from, state) do
+  def handle_call({:execute, jails}, _from, %{working_dir: working_dir}=state) do
     case Map.has_key?(jails, "name") do
       true ->
         name = jails["name"]
@@ -175,7 +183,7 @@ defmodule V1.ProjectRunner.JailsRunner do
 
         case Map.has_key?(jails, "copy") do
           true ->
-            copy_files(name, jails["copy"])
+            copy_files(name,working_dir ,jails["copy"])
 
           false ->
             :ok

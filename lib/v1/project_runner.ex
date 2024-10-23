@@ -18,8 +18,8 @@ defmodule V1.ProjectRunner do
     end
   end
 
-  def execute_git(data) do
-    case GitRunner.start_link(%{working_dir: data["working_dir"]}) do
+  def execute_git(%{"name"=> project_name,}=data) do
+    case GitRunner.start_link(%{working_dir: "/usr/exlector/#{project_name}"}) do
       {:ok, _pid} ->
         case GitRunner.run(data["git"]) do
           {:ok, _} ->
@@ -38,10 +38,10 @@ defmodule V1.ProjectRunner do
     end
   end
 
-  def execute_workflow(data) do
+  def execute_workflow(%{"name"=> project_name,}=data) do
     case data |> Map.has_key?("workflow") do
       true ->
-        case WorkflowRunner.start_link(%{working_dir: data["working_dir"]}) do
+        case WorkflowRunner.start_link(%{working_dir: "/usr/exlector/#{project_name}"}) do
           {:ok, _pid} ->
             WorkflowRunner.run(data["workflow"])
             WorkflowRunner.stop()
@@ -56,8 +56,8 @@ defmodule V1.ProjectRunner do
     end
   end
 
-  def execute_jails(data) do
-    case JailsRunner.start_link(%{working_dir: data["working_dir"]}) do
+  def execute_jails(%{"name"=> project_name,}=data) do
+    case JailsRunner.start_link(%{working_dir: "/usr/exlector/#{project_name}"}) do
       {:ok, _pid} ->
         JailsRunner.run(data["jails"])
         JailsRunner.stop()
