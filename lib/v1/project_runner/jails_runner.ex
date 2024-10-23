@@ -19,12 +19,12 @@ defmodule V1.ProjectRunner.JailsRunner do
   end
 
   def run(jails) do
-    GenServer.call(__MODULE__, {:execute, jails},600000)
+    GenServer.call(__MODULE__, {:execute, jails}, 600_000)
   end
 
   defp clone_base_dataset(name) do
-
-    {output, exit_code} = System.cmd("zfs", ["clone", "zroot/jails/base@clean", "zroot/jails/#{name}"])
+    {output, exit_code} =
+      System.cmd("zfs", ["clone", "zroot/jails/base@clean", "zroot/jails/#{name}"])
 
     case exit_code do
       0 ->
@@ -37,7 +37,8 @@ defmodule V1.ProjectRunner.JailsRunner do
   end
 
   defp mount_zfs_dataset(name) do
-    {output, exit_code} = System.cmd("zfs", ["set", "mountpoint=/jails/#{name}", "zroot/jails/#{name}"])
+    {output, exit_code} =
+      System.cmd("zfs", ["set", "mountpoint=/jails/#{name}", "zroot/jails/#{name}"])
 
     case exit_code do
       0 ->
@@ -49,16 +50,20 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-
   defp create_jails_config(name, %{
          "interface" => interface,
          "ip" => %{"inherit" => inherit?} = ip_config
        }) do
     template = """
     #{name} {
+      exec.start = "/bin/sh /etc/rc";
+      exec.stop = "/bin/sh /etc/rc.shutdown";
+      exec.consolelog = "/var/log/jail_console_${name}.log";
     host.hostname = #{name}.local;
     path = /jails/#{name};
     allow.raw_sockets;
+    mount.devfs;
+    exec.clean;
     persist;
 
     interface = #{interface};
@@ -124,7 +129,7 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp install_dependencies(name, %{"pkg"=> dependencies}) do
+  defp install_dependencies(name, %{"pkg" => dependencies}) do
     # Install dependencies
     Enum.each(dependencies, fn dependency -> install_dependency(name, dependency) end)
   end
