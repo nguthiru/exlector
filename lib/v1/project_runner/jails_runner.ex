@@ -130,7 +130,7 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp install_dependency(name, %{"name" => name}) do
+  defp install_dependency(name, %{"name" => name}=_dependecy) do
     # Command is jexec {name} pkg install {name} -y
     {output, exit_code} = System.cmd("jexec", [name, "pkg", "install", name, "-y"])
 
