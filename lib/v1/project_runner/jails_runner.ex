@@ -136,7 +136,8 @@ defmodule V1.ProjectRunner.JailsRunner do
 
   defp copy_file(name, working_dir, %{"from" => from, "to" => to}) do
     {output, exit_code} =
-      System.cmd("cp", ["-r",
+      System.cmd("cp", [
+        "-r",
         String.replace(
           from,
           "{working_dir}",
@@ -162,7 +163,14 @@ defmodule V1.ProjectRunner.JailsRunner do
 
   defp execute_command(name, command) do
     Logger.debug("Executing command #{command} on jail #{name}")
-    {output, exit_code}  = System.cmd("jexec", [name, command])
+
+    {output, exit_code} =
+      System.cmd("jexec", [
+        name,
+        "sh",
+        "-c",
+        command
+      ])
 
     case exit_code do
       0 ->
@@ -175,7 +183,7 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  def handle_call({:execute, jails}, _from, %{working_dir: working_dir}=state) do
+  def handle_call({:execute, jails}, _from, %{working_dir: working_dir} = state) do
     case Map.has_key?(jails, "name") do
       true ->
         name = jails["name"]
@@ -194,7 +202,7 @@ defmodule V1.ProjectRunner.JailsRunner do
 
         case Map.has_key?(jails, "copy") do
           true ->
-            copy_files(name,working_dir ,jails["copy"])
+            copy_files(name, working_dir, jails["copy"])
 
           false ->
             :ok

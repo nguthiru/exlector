@@ -43,7 +43,10 @@ project:
           version: "latest"
     copy:
       - from: "{working_dir}/dist"
-        to: "/usr/share/nginx/html"
+        to: "/usr/local/www/nginx"
+
+      - from: "./nginx.conf"
+        to: "/usr/local/etc/nginx/nginx.conf"
 
 
     commands:
