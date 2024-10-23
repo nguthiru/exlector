@@ -136,7 +136,7 @@ defmodule V1.ProjectRunner.JailsRunner do
 
   defp copy_file(name, working_dir, %{"from" => from, "to" => to}) do
     {output, exit_code} =
-      System.cmd("cp", [
+      System.cmd("cp", ["-r",
         String.replace(
           from,
           "{working_dir}",
