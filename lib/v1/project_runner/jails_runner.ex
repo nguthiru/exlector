@@ -95,7 +95,7 @@ defmodule V1.ProjectRunner.JailsRunner do
     case add_ip_config do
       {:ok, template} ->
         Logger.info("Jails configuration created successfully")
-        File.write!("/jails/jails.conf.d/#{name}.conf", template, [:write])
+        File.write!("/etc/jail.conf.d/#{name}.conf", template, [:write])
 
       {:error, error} ->
         Logger.error("Error creating jails configuration: #{error}")
