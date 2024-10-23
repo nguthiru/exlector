@@ -22,28 +22,33 @@ defmodule V1.ProjectRunner.JailsRunner do
     GenServer.call(__MODULE__, {:execute, jails},600000)
   end
 
-  defp create_zfs_dataset(name) do
-    # Create a ZFS dataset for the project
-    # This is a long running task
-    Logger.debug("Creating ZFS dataset for project: #{name}")
-    # Check if directory exists
-    case File.dir?("jails/#{name}") do
-      true -> Logger.info("Skipping ZFS dataset creation as directory exists")
-      false -> File.mkdir_p!("jails/#{name}")
-    end
+  defp clone_base_dataset(name) do
 
-    {output, exit_code} =
-      System.cmd("zfs", ["create", "-o", "mountpoint=/jails/#{name}", "zroot/jails/#{name}"])
+    {output, exit_code} = System.cmd("zfs", ["clone", "zroot/jails/base@clean", "zroot/jails/#{name}"])
 
     case exit_code do
       0 ->
-        Logger.info("ZFS dataset created successfully")
+        Logger.info("ZFS dataset cloned successfully")
 
       _ ->
-        Logger.error("Error creating ZFS dataset: #{output}")
-        {:error, "Error creating ZFS dataset: #{output}"}
+        Logger.error("Error cloning ZFS dataset: #{output}")
+        {:error, "Error cloning ZFS dataset: #{output}"}
     end
   end
+
+  defp mount_zfs_dataset(name) do
+    {output, exit_code} = System.cmd("zfs", ["set", "mountpoint= /jails/#{name}", "zroot/jails/#{name}"])
+
+    case exit_code do
+      0 ->
+        Logger.info("ZFS dataset mounted successfully")
+
+      _ ->
+        Logger.error("Error mounting ZFS dataset: #{output}")
+        {:error, "Error mounting ZFS dataset: #{output}"}
+    end
+  end
+
 
   defp create_jails_config(name, %{
          "interface" => interface,
@@ -90,26 +95,11 @@ defmodule V1.ProjectRunner.JailsRunner do
     case add_ip_config do
       {:ok, template} ->
         Logger.info("Jails configuration created successfully")
-        File.write!("jails/#{name}.conf", template, [:write])
+        File.write!("/jails/jails.conf.d/#{name}.conf", template, [:write])
 
       {:error, error} ->
         Logger.error("Error creating jails configuration: #{error}")
         {:error, "Error creating jails configuration: #{error}"}
-    end
-  end
-
-  defp install_bsd_on_jails(name) do
-    {output, exit_code} = System.cmd("bsdinstall", ["jail", "jails/#{name}"])
-
-    case exit_code do
-      0 ->
-        Logger.info("BSD installation successful")
-
-        {:ok, "BSD installation successful"}
-
-      _ ->
-        Logger.error("Error installing BSD: #{output}")
-        {:error, "Error installing BSD: #{output}"}
     end
   end
 
@@ -173,9 +163,9 @@ defmodule V1.ProjectRunner.JailsRunner do
     case Map.has_key?(jails, "name") do
       true ->
         name = jails["name"]
-        create_zfs_dataset(name)
+        clone_base_dataset(name)
+        mount_zfs_dataset(name)
         create_jails_config(name, jails["config"])
-        install_bsd_on_jails(name)
         start_jails(name)
 
         case Map.has_key?(jails, "dependencies") do
