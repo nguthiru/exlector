@@ -5,17 +5,17 @@ defmodule V1.ProjectRunner.JailsRunner do
   def start_link(
         %{
           working_dir: _working_directory
-        } = _args
+        } = args
       ) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def stop() do
     GenServer.stop(__MODULE__)
   end
 
-  def init(_state) do
-    {:ok, %{}}
+  def init(state) do
+    {:ok, state}
   end
 
   def run(jails) do
