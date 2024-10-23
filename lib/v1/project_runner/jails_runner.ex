@@ -120,12 +120,12 @@ defmodule V1.ProjectRunner.JailsRunner do
 
     case exit_code do
       0 ->
-        Logger.info("Dependency #{name} installed successfully")
-        {:ok, "Dependency #{name} installed successfully"}
+        Logger.info("Dependency #{dependecy_name} installed successfully")
+        {:ok, "Dependency #{dependecy_name} installed successfully"}
 
       _ ->
         Logger.error("Error installing dependency #{name}: #{output}")
-        {:error, "Error installing dependency #{name}: #{output}"}
+        {:error, "Error installing dependency #{dependecy_name}: #{output}"}
     end
   end
 
