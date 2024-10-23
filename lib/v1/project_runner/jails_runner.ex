@@ -161,7 +161,18 @@ defmodule V1.ProjectRunner.JailsRunner do
   end
 
   defp execute_command(name, command) do
-    System.cmd("jexec", [name, command])
+    Logger.debug("Executing command #{command} on jail #{name}")
+    {output, exit_code}  = System.cmd("jexec", [name, command])
+
+    case exit_code do
+      0 ->
+        Logger.info("Command #{command} executed successfully")
+        {:ok, "Command #{command} executed successfully"}
+
+      _ ->
+        Logger.error("Error executing command #{command}: #{output}")
+        {:error, "Error executing command: #{output}"}
+    end
   end
 
   def handle_call({:execute, jails}, _from, %{working_dir: working_dir}=state) do
