@@ -47,5 +47,5 @@ project:
 
 
     commands:
-      - "service enable nginx"
-      - "service restart nginx"
+      - "service nginx enable"
+      - "service nginx restart"
