@@ -2,13 +2,13 @@ version: 1
 
 # Deployment to compile node project and install on a jails, copy to jail and run the webserver
 metadata:
-  name: "yoonka-webserver"
+  name: "receipt-webserver"
 
 project:
-  name: "yoonka-webserver"
-  namespace: "yoonka-webserver"
+  name: "receipt-webserver"
+  namespace: "receipt-webserver"
 
-  working_dir: temp/yoonka-webserver
+  working_dir: temp/receipt-webserver
 
   git:
     source: "https://github.com/nguthiru/receipt_generator.git"
@@ -28,7 +28,7 @@ project:
         command: "run build"
 
   jails:
-    name: "yoonka-webserver"
+    name: "receipt-webserver"
 
     config:
       interface: "igb0"
