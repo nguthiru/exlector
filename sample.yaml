@@ -44,9 +44,11 @@ project:
     copy:
       - from: "dist/"
         to: "/usr/local/www/nginx/"
+        external: false # if true, it will copy from host to jail else will copy from working directory
 
       - from: "./nginx.conf"
         to: "/usr/local/etc/nginx/nginx.conf"
+        external: true
 
 
     commands:

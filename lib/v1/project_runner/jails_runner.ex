@@ -134,10 +134,18 @@ defmodule V1.ProjectRunner.JailsRunner do
     Enum.each(dependencies, fn dependency -> install_dependency(name, dependency) end)
   end
 
-  defp copy_file(name, working_dir, %{"from" => from, "to" => to}) do
+  defp copy_file(name, working_dir, %{"from" => from, "to" => to, "external" => external?}) do
     Logger.debug("Copying file from #{from} to /jails/#{name}#{to}")
+
     {output, exit_code} =
-     System.cmd("cp", [from, "/jails/#{name}#{to}"], cd: working_dir)
+      case external? do
+        true ->
+          System.cmd("cp", ["-r", from, "/jails/#{name}#{to}"])
+
+        false ->
+          System.cmd("cp", ["-r", from, "/jails/#{name}#{to}"], cd: working_dir)
+      end
+
     case exit_code do
       0 ->
         Logger.info("File copied successfully")
