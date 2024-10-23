@@ -145,8 +145,8 @@ defmodule V1.ProjectRunner.JailsRunner do
           working_dir
         ),
         "/jails/#{name}#{to} "
-      ])
-
+      ],into: IO.stream(:stdio, :line))
+    IO.inspect(output)
     case exit_code do
       0 ->
         Logger.info("File copied successfully")
