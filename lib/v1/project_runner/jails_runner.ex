@@ -145,9 +145,9 @@ defmodule V1.ProjectRunner.JailsRunner do
     end
   end
 
-  defp install_dependencies(name, [] = dependecies) do
+  defp install_dependencies(name, %{"pkg"=> dependencies}) do
     # Install dependencies
-    Enum.each(dependecies, fn dependency -> install_dependency(name, dependency) end)
+    Enum.each(dependencies, fn dependency -> install_dependency(name, dependency) end)
   end
 
   defp copy_file(name, %{"from" => from, "to" => to}) do
