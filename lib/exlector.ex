@@ -1,4 +1,5 @@
 defmodule Exlector do
+  require Logger
   @moduledoc """
   Documentation for `Exlector`.
   """
@@ -38,7 +39,7 @@ defmodule Exlector do
   def main(args) do
     case args do
       [file_path] -> parse_and_run(file_path)
-      _ -> IO.puts("Usage: exlector <file_path>")
+      _ -> Logger.error("Usage: exlector <file_path>")
     end
   end
 end
